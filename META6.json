@@ -1,0 +1,19 @@
+{
+  "authors" : [
+    "wbiker"
+  ],
+  "build-depends" : [ ],
+  "depends" : [ ],
+  "description" : "blah blah blah",
+  "license" : "Artistic-2.0",
+  "name" : "Config::Minimal",
+  "perl" : "6.c",
+  "provides" : {
+    "Config::Minimal" : "lib/Config/Minimal.pm6"
+  },
+  "resources" : [ ],
+  "source-url" : "",
+  "tags" : [ ],
+  "test-depends" : [ ],
+  "version" : "0.0.1"
+}
