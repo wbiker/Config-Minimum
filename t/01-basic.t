@@ -2,6 +2,8 @@ use v6.c;
 use Test;
 use Config::Minimal;
 
+plan 5;
+
 my $test-config = IO::Spec::Unix.catfile($*HOME, '.config', 'test', 'config');
 
 # Create file ~/.config/test/config
@@ -20,5 +22,4 @@ $test-config.IO.unlink;
 
 my $c = Config::Minimal.load(program-name => "test", default-config => "wolf = gang", do-not-prompt => True);
 dies-ok { Config::Minimal.load() }, "Dies without program-name";
-
-done-testing;
+$test-config.IO.unlink;
