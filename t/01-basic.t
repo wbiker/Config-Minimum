@@ -2,9 +2,10 @@ use v6.c;
 use Test;
 use Config::Minimal;
 
-plan 5;
+plan 8;
 
 my $test-config = IO::Spec::Unix.catfile($*HOME, '.config', 'test', 'config');
+$test-config.IO.unlink if $test-config.IO.e;
 
 # Create file ~/.config/test/config
 my %config = Config::Minimal.load(program-name => "test", do-not-prompt => True);
@@ -20,6 +21,10 @@ my %default-config-with-spaces = Config::Minimal.load(program-name => "test", de
 is %default-config-with-spaces<wolf>, "gang", "default config with spaces was found.";
 $test-config.IO.unlink;
 
-my $c = Config::Minimal.load(program-name => "test", default-config => "wolf = gang", do-not-prompt => True);
 dies-ok { Config::Minimal.load() }, "Dies without program-name";
+is $test-config.IO.e, False, "Test config not created if exception was thrown.";
+
+dies-ok {Config::Minimal.load(program-name => "test", default-config => "wolf = gang", settings-to-check => ['does-not-exists'], do-not-prompt => True)}, "dies when expected setting does not exists.";
 $test-config.IO.unlink;
+
+dies-ok {Config::Minimal.load(program-name => "test", default-config => "wolf = dummy", settings-to-check => ['wolf'], do-not-prompt => True)}, "dies when expected setting has got dummy string as value.";

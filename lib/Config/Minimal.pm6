@@ -27,7 +27,7 @@ This library is free software; you can redistribute it and/or modify it under th
 
 =end pod
 
-method load(:$program-name, :$default-config = "", :$do-not-prompt = False) {
+method load(:$program-name, :@settings-to-check, :$default-config = "", :$do-not-prompt = False) {
     unless $program-name {
         die "program-name must be set.";
     }
@@ -78,5 +78,21 @@ method load(:$program-name, :$default-config = "", :$do-not-prompt = False) {
         }
     }
 
-    %config;
+    check-config(config => %config, settings-to-check => @settings-to-check, config-file => $config-program-file);
+
+    return %config;
+}
+
+sub check-config(:%config, :@settings-to-check, :$config-file) {
+    return unless @settings-to-check;
+
+    for @settings-to-check -> $key {
+        unless %config{$key}:exists {
+            die "Config setting '$key' not found in config file $config-file";
+        }
+
+        unless %config{$key} !~~ /dummy/ {
+            die "Config setting '$key' not set in config file $config-file";
+        }
+    }
 }
