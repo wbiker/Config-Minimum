@@ -1,5 +1,5 @@
 use v6.c;
-unit class Config::Minimal:ver<0.0.1>;
+unit class Config::Minimal:ver<0.0.2>;
 
 =begin pod
 
@@ -11,9 +11,14 @@ Config::Minimal - A minimal config manager
 
   use Config::Minimal;
 
+  my %config = Config::Minimal.load(program-name => "name of the program", default-config => "key = value\nkey1 = value");
+
 =head1 DESCRIPTION
 
-Config::Minimal is ...
+Config::Minimal is a minimalistic config manager.
+It expect a program-name. This name is used to create a folder in  ~/.config and create a file in it if not already exists.
+If default-config was set it is written to the newly created config file and for each load it checks if all settings found
+in default-config exists in the config file as well.
 
 =head1 AUTHOR
 
@@ -27,7 +32,9 @@ This library is free software; you can redistribute it and/or modify it under th
 
 =end pod
 
-method load(:$program-name, :@settings-to-check, :$default-config = "", :$do-not-prompt = False) {
+my regex KEY_VALUE_REGEX { $<key>=<-[=\s]>+ \s? '=' \s? $<value>=.* }
+
+method load(:$program-name, :$default-config = "", :$do-not-prompt = False) {
     unless $program-name {
         die "program-name must be set.";
     }
@@ -55,9 +62,9 @@ method load(:$program-name, :@settings-to-check, :$default-config = "", :$do-not
         next if $line ~~ /^^ '#'/;
         next if $line ~~ /^$/;
 
-        if $line ~~ /$<key>=<-[=\s]>+ \s? '=' \s? $<value>=.*/ {
-            my $key = ~$<key>;
-            my $value = ~$<value>;
+        if $line ~~ /<KEY_VALUE_REGEX>/ {
+            my $key = ~$<KEY_VALUE_REGEX><key>;
+            my $value = ~$<KEY_VALUE_REGEX><value>;
             if %config{$key}:exists {
                 my $tmp = %config{$key};
                 if $tmp ~~ Array {
@@ -78,12 +85,25 @@ method load(:$program-name, :@settings-to-check, :$default-config = "", :$do-not
         }
     }
 
-    check-config(config => %config, settings-to-check => @settings-to-check, config-file => $config-program-file);
+    check-config(config => %config, settings-to-check => get-settings($default-config), config-file => $config-program-file);
 
     return %config;
 }
 
-sub check-config(:%config, :@settings-to-check, :$config-file) {
+sub get-settings($default-config) {
+    return [] unless $default-config;
+
+    my @default-settings;
+    for $default-config.split('\n') -> $line {
+        if $line ~~ /<KEY_VALUE_REGEX>/ {
+            @default-settings.push(~$<KEY_VALUE_REGEX><key>);
+        }
+    }
+
+    return @default-settings;
+}
+
+sub check-config(:%config, :$config-file, :@settings-to-check = [] ) {
     return unless @settings-to-check;
 
     for @settings-to-check -> $key {

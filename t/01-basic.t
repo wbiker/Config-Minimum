@@ -2,7 +2,7 @@ use v6.c;
 use Test;
 use Config::Minimal;
 
-plan 8;
+plan 7;
 
 my $test-config = IO::Spec::Unix.catfile($*HOME, '.config', 'test', 'config');
 $test-config.IO.unlink if $test-config.IO.e;
@@ -24,7 +24,4 @@ $test-config.IO.unlink;
 dies-ok { Config::Minimal.load() }, "Dies without program-name";
 is $test-config.IO.e, False, "Test config not created if exception was thrown.";
 
-dies-ok {Config::Minimal.load(program-name => "test", default-config => "wolf = gang", settings-to-check => ['does-not-exists'], do-not-prompt => True)}, "dies when expected setting does not exists.";
-$test-config.IO.unlink;
-
-dies-ok {Config::Minimal.load(program-name => "test", default-config => "wolf = dummy", settings-to-check => ['wolf'], do-not-prompt => True)}, "dies when expected setting has got dummy string as value.";
+dies-ok {Config::Minimal.load(program-name => "test", default-config => "wolf = dummy", do-not-prompt => True)}, "dies when expected setting has got dummy string as value.";

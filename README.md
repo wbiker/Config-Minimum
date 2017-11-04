@@ -1,7 +1,9 @@
+[![Build Status](https://travis-ci.org/wbiker/Config-Minimum.svg?branch=master)](https://travis-ci.org/wbiker/Config-Minimum)
+
 NAME
 ====
 
-Config::Minimal - blah blah blah
+Config::Minimal - A minimal config manager
 
 SYNOPSIS
 ========
